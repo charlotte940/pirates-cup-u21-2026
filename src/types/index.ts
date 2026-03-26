@@ -6,6 +6,7 @@ export interface SponsorshipBanner {
   imageUrl: string;
   linkUrl?: string;
   position: 'top' | 'bottom' | 'sidebar';
+  target: 'all' | 'manager' | 'coach' | 'admin' | 'spectator';
   active: boolean;
   uploadedAt: string;
   uploadedBy: string;
