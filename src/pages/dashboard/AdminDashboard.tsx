@@ -79,10 +79,10 @@ export default function AdminDashboard() {
   
   // Sponsorship banners state
   const [banners, setBanners] = useState<SponsorshipBanner[]>([
-    { id: '1', name: 'Vodacom', imageUrl: '/sponsor-vodacom.jpg', linkUrl: 'https://www.vodacom.co.za', position: 'top', active: true, uploadedAt: new Date().toISOString(), uploadedBy: 'Admin' },
-    { id: '2', name: 'Adidas', imageUrl: '/sponsor-adidas1.jpg', linkUrl: 'https://www.adidas.com', position: 'bottom', active: true, uploadedAt: new Date().toISOString(), uploadedBy: 'Admin' },
-    { id: '3', name: 'Amstel', imageUrl: '/sponsor-amstel.jpg', linkUrl: '#', position: 'sidebar', active: true, uploadedAt: new Date().toISOString(), uploadedBy: 'Admin' },
-    { id: '4', name: 'Adidas', imageUrl: '/sponsor-adidas2.jpg', linkUrl: 'https://www.adidas.com', position: 'top', active: false, uploadedAt: new Date().toISOString(), uploadedBy: 'Admin' },
+    { id: '1', name: 'Vodacom', imageUrl: '/sponsor-vodacom.jpg', linkUrl: 'https://www.vodacom.co.za', position: 'top', target: 'all', active: true, uploadedAt: new Date().toISOString(), uploadedBy: 'Admin' },
+    { id: '2', name: 'Adidas', imageUrl: '/sponsor-adidas1.jpg', linkUrl: 'https://www.adidas.com', position: 'bottom', target: 'all', active: true, uploadedAt: new Date().toISOString(), uploadedBy: 'Admin' },
+    { id: '3', name: 'Amstel', imageUrl: '/sponsor-amstel.jpg', linkUrl: '#', position: 'sidebar', target: 'all', active: true, uploadedAt: new Date().toISOString(), uploadedBy: 'Admin' },
+    { id: '4', name: 'Adidas', imageUrl: '/sponsor-adidas2.jpg', linkUrl: 'https://www.adidas.com', position: 'top', target: 'all', active: false, uploadedAt: new Date().toISOString(), uploadedBy: 'Admin' },
   ]);
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [newBannerName, setNewBannerName] = useState('');
