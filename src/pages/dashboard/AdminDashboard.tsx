@@ -27,6 +27,15 @@ const GROUP_COLORS: Record<string, { bg: string; text: string; border: string; l
 
 const POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
 
+// Banner display targets
+const BANNER_TARGETS = [
+  { id: 'all', label: 'All Accounts' },
+  { id: 'coach', label: 'Coach Dashboard Only' },
+  { id: 'spectator', label: 'Spectator/Fanzone Only' },
+  { id: 'admin', label: 'Admin Dashboard Only' },
+  { id: 'manager', label: 'Tournament Manager Only' },
+];
+
 // Mock staff data
 const MOCK_STAFF: Staff[] = [
   { id: 'staff-1', name: 'John Doe', role: 'ballboy', foodAllocated: true, foodCollected: false, drinkAllocated: true, drinkCollected: false },
@@ -56,6 +65,8 @@ export default function AdminDashboard() {
   const [programmingStaff, setProgrammingStaff] = useState<Staff | null>(null);
   const [isProgramming, setIsProgramming] = useState(false);
   const [programSuccess, setProgramSuccess] = useState(false);
+  const [nfcStatus, setNfcStatus] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
+  const [nfcMessage, setNfcMessage] = useState('');
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
   const [newStaffName, setNewStaffName] = useState('');
   const [newStaffRole, setNewStaffRole] = useState<Staff['role']>('ballboy');
@@ -77,6 +88,7 @@ export default function AdminDashboard() {
   const [newBannerName, setNewBannerName] = useState('');
   const [newBannerLink, setNewBannerLink] = useState('');
   const [newBannerPosition, setNewBannerPosition] = useState<'top' | 'bottom' | 'sidebar'>('top');
+  const [newBannerTarget, setNewBannerTarget] = useState<'all' | 'coach' | 'spectator' | 'admin' | 'manager'>('all');
   const [newBannerImage, setNewBannerImage] = useState('');
   
   // New team form state
@@ -199,8 +211,10 @@ export default function AdminDashboard() {
   const handleProgramNFC = async (staff: Staff) => {
     setProgrammingStaff(staff);
     setIsProgramming(true);
+    setNfcStatus('scanning');
+    setNfcMessage('Hold NFC tag near device...');
     setProgramSuccess(false);
-    
+
     try {
       // Program NFC tag with staff name and role
       const result = await nfcService.programTag({
@@ -209,8 +223,10 @@ export default function AdminDashboard() {
         teamName: staff.role,
         jerseyNumber: 0,
       });
-      
+
       if (result.success) {
+        setNfcStatus('success');
+        setNfcMessage('NFC tag programmed successfully!');
         // Update staff with NFC tag
         const updatedStaff = staffList.map(s => 
           s.id === staff.id ? { ...s, nfcTag: result.tagId } : s
@@ -219,6 +235,8 @@ export default function AdminDashboard() {
         setProgramSuccess(true);
       }
     } catch (error) {
+      setNfcStatus('error');
+      setNfcMessage('NFC programming failed. Using demo mode...');
       // Demo mode - simulate success
       const tagId = `PC26-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
       const updatedStaff = staffList.map(s => 
@@ -226,6 +244,8 @@ export default function AdminDashboard() {
       );
       setStaffList(updatedStaff);
       setProgramSuccess(true);
+      setNfcStatus('success');
+      setNfcMessage('NFC tag programmed (demo mode)!');
     } finally {
       setIsProgramming(false);
     }
@@ -819,8 +839,30 @@ export default function AdminDashboard() {
             {isProgramming && (
               <div className="text-center py-4">
                 <div className="w-16 h-16 border-4 border-pirates-red border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="font-heading text-lg font-bold text-pirates-black">Programming...</p>
-                <p className="text-pirates-gray-500 text-sm">Please hold the NFC tag near the device</p>
+                <p className="font-heading text-lg font-bold text-pirates-black">
+                  {nfcStatus === 'scanning' ? 'Scanning...' : 'Programming...'}
+                </p>
+                <p className="text-pirates-gray-500 text-sm">{nfcMessage || 'Please hold the NFC tag near the device'}</p>
+              </div>
+            )}
+
+            {nfcStatus === 'success' && programSuccess && (
+              <div className="text-center py-4 bg-green-50 rounded-lg">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <p className="font-heading text-lg font-bold text-green-700">Success!</p>
+                <p className="text-green-600 text-sm">{nfcMessage}</p>
+              </div>
+            )}
+
+            {nfcStatus === 'error' && (
+              <div className="text-center py-4 bg-red-50 rounded-lg">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <XCircle className="w-8 h-8 text-red-600" />
+                </div>
+                <p className="font-heading text-lg font-bold text-red-700">Error</p>
+                <p className="text-red-600 text-sm">{nfcMessage}</p>
               </div>
             )}
 
@@ -1539,7 +1581,7 @@ export default function AdminDashboard() {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h4 className="font-medium text-pirates-black">{banner.name}</h4>
-                    <p className="text-sm text-pirates-gray-500">Position: {banner.position}</p>
+                    <p className="text-sm text-pirates-gray-500">Position: {banner.position} | Target: {BANNER_TARGETS.find(t => t.id === banner.target)?.label || 'All'}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -1660,11 +1702,23 @@ export default function AdminDashboard() {
                   onChange={(e) => setNewBannerPosition(e.target.value as any)}
                   className="w-full border border-pirates-gray-200 rounded-lg px-4 py-3 text-pirates-black focus:outline-none focus:border-pirates-red"
                 >
-                  <option value="top">Top Banner (Team/Coach & Spectator)</option>
+                  <option value="top">Top Banner</option>
                   <option value="bottom">Bottom Banner</option>
                   <option value="sidebar">Sidebar</option>
                 </select>
-                <p className="text-xs text-pirates-gray-500 mt-1">Top banners appear on Team/Coach and Spectator accounts</p>
+              </div>
+              <div>
+                <label className="block text-pirates-gray-700 text-sm mb-2 font-medium">Display Target</label>
+                <select
+                  value={newBannerTarget}
+                  onChange={(e) => setNewBannerTarget(e.target.value as any)}
+                  className="w-full border border-pirates-gray-200 rounded-lg px-4 py-3 text-pirates-black focus:outline-none focus:border-pirates-red"
+                >
+                  {BANNER_TARGETS.map(target => (
+                    <option key={target.id} value={target.id}>{target.label}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-pirates-gray-500 mt-1">Select which accounts will see this banner</p>
               </div>
             </div>
 
@@ -1684,6 +1738,7 @@ export default function AdminDashboard() {
                       imageUrl: newBannerImage,
                       linkUrl: newBannerLink || '#',
                       position: newBannerPosition,
+                      target: newBannerTarget,
                       active: true,
                       uploadedAt: new Date().toISOString(),
                       uploadedBy: 'Admin'
