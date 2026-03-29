@@ -109,6 +109,23 @@ export default function AdminDashboard() {
   const [newPlayerNumber, setNewPlayerNumber] = useState(1);
   const [newPlayerPhoto, setNewPlayerPhoto] = useState<string>('');
 
+  // Reset all modal states when tab changes - FIXES MODAL POPUP ISSUE
+  useEffect(() => {
+    setShowEditModal(false);
+    setShowAddModal(false);
+    setShowGroupModal(false);
+    setShowStaffModal(false);
+    setShowAddStaffModal(false);
+    setShowBannerModal(false);
+    setSelectedFixture(null);
+    setEditingTeam(null);
+    setProgrammingStaff(null);
+    setNfcStatus('idle');
+    setNfcMessage('');
+  }, [activeTab]);
+
+
+
   // Note: Using REGISTERED_MENS_TEAMS and REGISTERED_LADIES_TEAMS for display
   const filteredLegacyTeams = teams.filter(team => 
     team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
