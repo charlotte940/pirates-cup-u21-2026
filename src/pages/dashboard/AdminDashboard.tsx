@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, Plus, Search, CheckCircle, XCircle, Edit, Trash2, Shield, MapPin, Trophy, Star, Zap, Flame, Crown, Target, Anchor, Flag, Award, Medal, Sparkles, ChevronRight, User, X, CreditCard, UserCog, UtensilsCrossed, Briefcase, Image, Upload } from 'lucide-react';
 import { allTeams } from '../../data/teamsData';
 import { ladiesTeams, mensTeams } from '../../data/tournamentSchedule';
