@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Plus, Search, CheckCircle, XCircle, Edit, Trash2, Shield, MapPin, Trophy, Star, Zap, Flame, Crown, Target, Anchor, Flag, Award, Medal, Sparkles, ChevronRight, User, X, CreditCard, UserCog, UtensilsCrossed, Briefcase, Image, Upload } from 'lucide-react';
+import { Users, Plus, Search, CheckCircle, XCircle, Edit, Trash2, Shield, MapPin, Trophy, Star, Zap, Flame, Crown, Target, Anchor, Flag, Award, Medal, Sparkles, ChevronRight, User, X, CreditCard, UserCog, UtensilsCrossed, Briefcase, Image, Upload, Camera } from 'lucide-react';
 import { allTeams } from '../../data/teamsData';
 import { ladiesTeams, mensTeams } from '../../data/tournamentSchedule';
 import { REGISTERED_MENS_TEAMS, REGISTERED_LADIES_TEAMS } from '../../data/registeredTeams';
@@ -1263,6 +1263,26 @@ export default function AdminDashboard() {
                     )}
                     <span className="text-pirates-black font-medium">{player.name}</span>
                     <span className="text-pirates-gray-500 text-sm bg-pirates-gray-200 px-2 py-0.5 rounded">#{player.number} • {player.position}</span>
+                    <label className="ml-auto cursor-pointer p-1.5 hover:bg-pirates-red/10 rounded-lg transition-colors" title="Add/Change Photo">
+                      <Camera className="w-4 h-4 text-pirates-gray-500 hover:text-pirates-red" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              const updatedPlayers = [...players];
+                              updatedPlayers[idx] = { ...player, photo: reader.result as string };
+                              setPlayers(updatedPlayers);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
                   </div>
                 ))}
               </div>
